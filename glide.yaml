@@ -1,2 +1,6 @@
 package: github.com/99designs/aws-ecr-gc
-import: []
+import:
+- package: github.com/aws/aws-sdk-go
+  version: ^1.7.9
+  subpackages:
+  - '...'
