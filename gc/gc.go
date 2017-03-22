@@ -19,22 +19,24 @@ func ImagesToDelete(all model.Images, params Params) model.Images {
 		candidate := false
 		recent := false
 		untagged := false
+		unmanaged := false
 		if len(img.Tags) == 0 {
 			untagged = true
-		} else if !hasUnknownTags(img.Tags, prefixes) {
-			for _, t := range img.Tags {
-				for p, keepCount := range params.KeepCounts {
-					if strings.HasPrefix(t, p) {
-						candidate = true
-						if seenCounts[p] < keepCount {
-							recent = true
-						}
-						seenCounts[p]++
+		} else if hasUnknownTags(img.Tags, prefixes) {
+			unmanaged = true
+		}
+		for _, t := range img.Tags {
+			for p, keepCount := range params.KeepCounts {
+				if strings.HasPrefix(t, p) {
+					candidate = true
+					if seenCounts[p] < keepCount {
+						recent = true
 					}
+					seenCounts[p]++
 				}
 			}
 		}
-		if (untagged && params.DeleteUntagged) || (candidate && !recent) {
+		if (untagged && params.DeleteUntagged) || (candidate && !recent && !unmanaged) {
 			deletionList = append(deletionList, img)
 		}
 	}
