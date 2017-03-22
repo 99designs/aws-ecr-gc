@@ -13,7 +13,7 @@ type Session struct {
 
 func NewSession(region string) *Session {
 	sess := session.Must(session.NewSession())
-	conf := aws.Config{Region: aws.String(region)}
+	conf := aws.Config{Region: &region}
 	return &Session{ecr: ecr.New(sess, &conf)}
 }
 
@@ -33,14 +33,14 @@ func (s *Session) Images(repo string) (model.Images, error) {
 	listImagesPageHandler := func(page *ecr.ListImagesOutput, lastPage bool) bool {
 		listImagesPageNum++
 		err = s.ecr.DescribeImagesPages(
-			&ecr.DescribeImagesInput{RepositoryName: aws.String(repo), ImageIds: page.ImageIds},
+			&ecr.DescribeImagesInput{RepositoryName: &repo, ImageIds: page.ImageIds},
 			describeImagesPageHandler,
 		)
 		return err == nil && listImagesPageNum <= 100 // arbitrary terminator
 	}
 
 	err = s.ecr.ListImagesPages(
-		&ecr.ListImagesInput{RepositoryName: aws.String(repo)},
+		&ecr.ListImagesInput{RepositoryName: &repo},
 		listImagesPageHandler,
 	)
 	if err != nil {
