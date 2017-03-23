@@ -69,14 +69,14 @@ func (s *Session) DeleteImages(repo string, images model.Images) (*model.DeleteI
 	if err != nil {
 		return nil, err
 	}
-	for _, awsImgId := range output.ImageIds {
-		imgId := model.ImageId{Digest: *awsImgId.ImageDigest, Tag: *awsImgId.ImageTag}
-		result.Deletions = append(result.Deletions, imgId)
+	for _, awsImgID := range output.ImageIds {
+		imgID := model.ImageID{Digest: *awsImgID.ImageDigest, Tag: *awsImgID.ImageTag}
+		result.Deletions = append(result.Deletions, imgID)
 	}
 	for _, awsFailure := range output.Failures {
-		awsImgId := *awsFailure.ImageId
-		imgId := model.ImageId{Digest: *awsImgId.ImageDigest, Tag: *awsImgId.ImageTag}
-		failure := model.ImageFailure{Id: imgId, Code: *awsFailure.FailureCode, Reason: *awsFailure.FailureReason}
+		awsImgID := *awsFailure.ImageId
+		imgID := model.ImageID{Digest: *awsImgID.ImageDigest, Tag: *awsImgID.ImageTag}
+		failure := model.ImageFailure{ID: imgID, Code: *awsFailure.FailureCode, Reason: *awsFailure.FailureReason}
 		result.Failures = append(result.Failures, failure)
 	}
 	return result, nil

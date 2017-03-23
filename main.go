@@ -83,6 +83,6 @@ func printResult(result *model.DeleteImagesResult) {
 	}
 	fmt.Printf("Failures (%d)\n", len(result.Failures))
 	for _, f := range result.Failures {
-		fmt.Printf("  %s... %s: %s\n", f.Id.Digest[0:16], f.Code, f.Reason)
+		fmt.Printf("  %s... %s: %s\n", f.ID.Digest[0:16], f.Code, f.Reason)
 	}
 }

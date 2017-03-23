@@ -25,18 +25,18 @@ func (images Images) CopyNewestFirst() Images {
 	return result
 }
 
-type ImageId struct {
+type ImageID struct {
 	Digest string
 	Tag    string
 }
 
 type ImageFailure struct {
-	Id     ImageId
+	ID     ImageID
 	Code   string
 	Reason string
 }
 
 type DeleteImagesResult struct {
-	Deletions []ImageId
+	Deletions []ImageID
 	Failures  []ImageFailure
 }
