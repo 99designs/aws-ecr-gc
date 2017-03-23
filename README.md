@@ -10,8 +10,8 @@ matching those prefixes. Images with tags not matching the listed prefixes are
 not deleted. Optionally, untagged images are also deleted.
 
 AWS authentication via the standard strategies as implemented in
-[aws-sdk-go](https://github.com/aws/aws-sdk-go). We recomment
-[aws-vault](http://github.com/99designs/aws-vault) to manage these.
+[aws-sdk-go](https://github.com/aws/aws-sdk-go). We recommend
+[aws-vault](https://github.com/99designs/aws-vault) to manage these.
 
 Usage
 -----
