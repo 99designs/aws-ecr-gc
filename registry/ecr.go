@@ -18,7 +18,7 @@ func NewSession(region string) *Session {
 }
 
 func (s *Session) Images(repo string) (model.Images, error) {
-	var err error
+	var handlerErr error
 	var images model.Images
 	var describeImagesPageNum, listImagesPageNum uint
 
@@ -27,24 +27,27 @@ func (s *Session) Images(repo string) (model.Images, error) {
 		for _, img := range page.ImageDetails {
 			images = append(images, imageFromAws(img))
 		}
-		return err == nil && describeImagesPageNum <= 100 // arbitrary terminator
+		return describeImagesPageNum <= 100 // arbitrary terminator
 	}
 
 	listImagesPageHandler := func(page *ecr.ListImagesOutput, lastPage bool) bool {
 		listImagesPageNum++
-		err = s.ecr.DescribeImagesPages(
+		handlerErr = s.ecr.DescribeImagesPages(
 			&ecr.DescribeImagesInput{RepositoryName: &repo, ImageIds: page.ImageIds},
 			describeImagesPageHandler,
 		)
-		return err == nil && listImagesPageNum <= 100 // arbitrary terminator
+		return handlerErr == nil && listImagesPageNum <= 100 // arbitrary terminator
 	}
 
-	err = s.ecr.ListImagesPages(
+	err := s.ecr.ListImagesPages(
 		&ecr.ListImagesInput{RepositoryName: &repo},
 		listImagesPageHandler,
 	)
 	if err != nil {
 		return nil, err
+	}
+	if handlerErr != nil {
+		return nil, handlerErr
 	}
 
 	return images, nil
