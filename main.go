@@ -15,7 +15,11 @@ import (
 type keepCountMap map[string]uint
 
 func (k keepCountMap) String() string {
-	return fmt.Sprintf("%#v", k)
+	var s []string
+	for prefix, count := range k {
+		s = append(s, fmt.Sprintf("%s=%d", prefix, count))
+	}
+	return "{" + strings.Join(s, ", ") + "}"
 }
 
 func (k keepCountMap) Set(value string) error {
@@ -37,7 +41,7 @@ func main() {
 	var repo string
 	var deleteUntagged bool
 	keepCounts := keepCountMap{}
-	flag.StringVar(&region, "region", os.Getenv("AWS_DEFAULT_REGION"), "AWS region")
+	flag.StringVar(&region, "region", os.Getenv("AWS_DEFAULT_REGION"), "AWS region (defaults to AWS_DEFAULT_REGION in environment)")
 	flag.StringVar(&repo, "repo", "", "AWS ECR repository name")
 	flag.BoolVar(&deleteUntagged, "delete-untagged", deleteUntagged, "whether to delete untagged images")
 	flag.Var(&keepCounts, "keep", "map of image tag prefixes to how many to keep, e.g. --keep release=4 --keep build=8")
