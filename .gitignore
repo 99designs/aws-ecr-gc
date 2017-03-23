@@ -1,0 +1,5 @@
+# executable binary from build
+/aws-ecr-gc
+
+# vendor managed by Glide
+vendor/
