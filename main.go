@@ -1,7 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/99designs/aws-ecr-gc/gc"
@@ -9,22 +12,49 @@ import (
 	"github.com/99designs/aws-ecr-gc/registry"
 )
 
-// TODO: CLI flags
-var region = "us-east-1"
-var repo = "workbench-ci"
-var keepCounts map[string]uint = map[string]uint{
-	"release-production": 26,
-	"build":              26,
+type keepCountMap map[string]uint
+
+func (k keepCountMap) String() string {
+	return fmt.Sprintf("%#v", k)
+}
+
+func (k keepCountMap) Set(value string) error {
+	parts := strings.SplitN(value, "=", 2)
+	if len(parts) != 2 {
+		return fmt.Errorf("expected prefix=COUNT e.g. release=4")
+	}
+	prefix := parts[0]
+	count, err := strconv.ParseUint(parts[1], 10, 32)
+	if err != nil {
+		return fmt.Errorf("expected N in %s=N to be non-negative integer", prefix)
+	}
+	k[prefix] = uint(count)
+	return nil
 }
 
 func main() {
+	var region string
+	var repo string
+	var deleteUntagged bool
+	keepCounts := keepCountMap{}
+	flag.StringVar(&region, "region", os.Getenv("AWS_DEFAULT_REGION"), "AWS region")
+	flag.StringVar(&repo, "repo", "", "AWS ECR repository name")
+	flag.BoolVar(&deleteUntagged, "delete-untagged", deleteUntagged, "whether to delete untagged images")
+	flag.Var(&keepCounts, "keep", "map of image tag prefixes to how many to keep, e.g. --keep release=4 --keep build=8")
+	flag.Parse()
+	if region == "" || repo == "" {
+		flag.Usage()
+		os.Exit(2)
+	}
+
 	ecr := registry.NewSession(region)
 	images, err := ecr.Images(repo)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("Total images in %s (%s): %d\n", repo, region, len(images))
-	gcParams := gc.Params{KeepCounts: keepCounts, DeleteUntagged: true}
+
+	gcParams := gc.Params{KeepCounts: keepCounts, DeleteUntagged: deleteUntagged}
 	deletionList := gc.ImagesToDelete(images, gcParams)
 	printImages("Images to delete", deletionList)
 	result, err := ecr.DeleteImages(repo, deletionList)
