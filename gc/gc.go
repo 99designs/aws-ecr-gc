@@ -1,3 +1,5 @@
+// package gc provides tested logic to determine which images should be
+// deleted, decoupled from external libraries and API calls.
 package gc
 
 import (
@@ -6,11 +8,15 @@ import (
 	"github.com/99designs/aws-ecr-gc/model"
 )
 
+// type Params provides configuration to ImagesToDelete()
 type Params struct {
 	KeepCounts     map[string]uint
 	DeleteUntagged bool
 }
 
+// func ImagesToDelete takes a list of all images in a repository and returns a
+// list of images to delete satisfying the provided KeepCounts and other
+// configuration.
 func ImagesToDelete(all model.Images, params Params) model.Images {
 	var deletionList model.Images
 	prefixes := knownPrefixes(params.KeepCounts)

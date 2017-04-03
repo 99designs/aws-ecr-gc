@@ -1,3 +1,5 @@
+// package registry encapsulates access to AWS ECR, returning entities provided
+// by package model.
 package registry
 
 import (
@@ -7,16 +9,20 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecr"
 )
 
+// type Session wraps a configured/authenticated ECR API session.
 type Session struct {
 	ecr *ecr.ECR
 }
 
+// func NewSession creates a Session for the given AWS region e.g. "us-east-1".
 func NewSession(region string) *Session {
 	sess := session.Must(session.NewSession())
 	conf := aws.Config{Region: &region}
 	return &Session{ecr: ecr.New(sess, &conf)}
 }
 
+// func Images returns a detailed list of all images in the specified
+// repository.
 func (s *Session) Images(repo string) (model.Images, error) {
 	var handlerErr error
 	var images model.Images
@@ -53,6 +59,8 @@ func (s *Session) Images(repo string) (model.Images, error) {
 	return images, nil
 }
 
+// func DeleteImages performs a BatchDeleteImage operation for the listed
+// images in the specified repository.
 func (s *Session) DeleteImages(repo string, images model.Images) (*model.DeleteImagesResult, error) {
 	result := &model.DeleteImagesResult{}
 	if len(images) == 0 {
