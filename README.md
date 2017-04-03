@@ -24,7 +24,7 @@ Usage of aws-ecr-gc:
         map of image tag prefixes to how many to keep, e.g. --keep release=4 --keep build=8
   --region string
         AWS region (defaults to AWS_DEFAULT_REGION from environment)
-  -repo string
+  --repo string
         AWS ECR repository name
 ```
 
