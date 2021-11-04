@@ -26,6 +26,8 @@ Usage of aws-ecr-gc:
         AWS region (defaults to AWS_DEFAULT_REGION from environment)
   --repo string
         AWS ECR repository name
+  --dry-run
+        dry run only, will not delete images
 ```
 
 Example
