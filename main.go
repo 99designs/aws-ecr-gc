@@ -40,10 +40,12 @@ func main() {
 	var region string
 	var repo string
 	var deleteUntagged bool
+	var dryRun bool
 	keepCounts := keepCountMap{}
 	flag.StringVar(&region, "region", os.Getenv("AWS_DEFAULT_REGION"), "AWS region (defaults to AWS_DEFAULT_REGION in environment)")
 	flag.StringVar(&repo, "repo", "", "AWS ECR repository name")
 	flag.BoolVar(&deleteUntagged, "delete-untagged", deleteUntagged, "whether to delete untagged images")
+	flag.BoolVar(&dryRun, "dry-run", dryRun, "dry run only, will not delete images")
 	flag.Var(&keepCounts, "keep", "map of image tag prefixes to how many to keep, e.g. --keep release=4 --keep build=8")
 	flag.Parse()
 	if region == "" || repo == "" {
@@ -61,6 +63,11 @@ func main() {
 	gcParams := gc.Params{KeepCounts: keepCounts, DeleteUntagged: deleteUntagged}
 	deletionList := gc.ImagesToDelete(images, gcParams)
 	printImages("Images to delete", deletionList)
+	if dryRun {
+		fmt.Print("Dry run only, nothing is deleted\n")
+		os.Exit(0)
+	}
+
 	result, err := ecr.DeleteImages(repo, deletionList)
 	if err != nil {
 		panic(err)
